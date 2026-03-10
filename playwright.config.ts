@@ -1,12 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-    testDir: '.',
+    testDir: './tests',
     fullyParallel: true,
     projects: [
         {
             name: 'dekkpro-setup',
-            testDir: './tests/dekkpro  ',
+            testDir: './fixtures',
             testMatch: /dekkpro\.setup\.ts/,
             use: {
                 ...devices['Desktop Chrome'],
