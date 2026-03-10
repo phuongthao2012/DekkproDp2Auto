@@ -2,6 +2,7 @@ import test, { expect, Page } from "@playwright/test";
 import LoginPage from "../../models/pages/dekkpro/LoginPage";
 import PurchaseOrdersPage from "../../models/pages/dekkpro/PurchaseOrdersPage";
 import PurchaseOrderPage from "../../models/pages/dekkpro/PurchaseOrderPage";
+import SalesOrderPage from "../../models/pages/dekkpro/SalesOrderPage";
 import { fullResSalePriceData } from "../../test_data/dekkpro/PurchaseOrderData";
 
 const CREDENTIALS = {
@@ -14,12 +15,14 @@ export class FullResSalePriceFlow {
     private loginPage: LoginPage;
     private purchaseOrdersPage: PurchaseOrdersPage;
     private purchaseOrderPage: PurchaseOrderPage;
+    private salesOrderPage: SalesOrderPage;
     private data = fullResSalePriceData;
 
     constructor(private page: Page) {
         this.loginPage = new LoginPage(page);
         this.purchaseOrdersPage = new PurchaseOrdersPage(page);
         this.purchaseOrderPage = new PurchaseOrderPage(page);
+        this.salesOrderPage = new SalesOrderPage(page);
     }
 
     // Step 1: Log out
@@ -119,6 +122,70 @@ export class FullResSalePriceFlow {
     async verifyDiscountGroup() {
         await test.step('Verify discount group is Gruppe 3 - Forhandlere', async () => {
             await expect(this.purchaseOrderPage.discountGroupText()).toBeVisible();
+        });
+    }
+
+    // Step 11: Verify customer 3M Autosport AS and "Res XXXXX" hyperlink
+    async verifyCustomerAndResHyperlink() {
+        await test.step('Verify customer 3M Autosport AS and Res hyperlink is shown', async () => {
+            await expect(this.purchaseOrderPage.customerText()).toBeVisible();
+            await expect(this.purchaseOrderPage.resHyperlink()).toBeVisible();
+        });
+    }
+
+    // Step 12a: Click the PO line
+    async clickPoLine() {
+        await test.step('Click the PO line', async () => {
+            await this.purchaseOrderPage.poLineFirstRow().click();
+            await this.page.waitForTimeout(500);
+        });
+    }
+
+    // Step 12b: Verify Kjøpspris = 24 280,00
+    async verifyKjøpspris() {
+        await test.step('Verify Kjøpspris = 24 280,00', async () => {
+            await expect(this.purchaseOrderPage.kjøpsprisValueInExpandedRow()).toBeVisible();
+        });
+    }
+
+    // Step 13: Click the Res hyperlink, verify URL /app/sales/orders/...
+    async clickResHyperlinkAndVerifyOrderPage() {
+        await test.step('Click Res hyperlink and verify sales order page loads', async () => {
+            await this.purchaseOrderPage.resHyperlink().click();
+            await this.page.waitForLoadState('networkidle');
+            await expect(this.page).toHaveURL(/.*\/app\/sales\/orders/);
+        });
+    }
+
+    // Step 14: Verify Rabatt = 50%
+    async verifyRabatt50() {
+        await test.step('Verify Rabatt is 50% on the sales order', async () => {
+            await expect(this.salesOrderPage.rabattCell()).toBeVisible();
+        });
+    }
+
+    // Step 15: Verify product ALL60010005 is added
+    async verifyProductAdded() {
+        await test.step('Verify product ALL60010005 is in the order', async () => {
+            await expect(
+                this.salesOrderPage.productRow(this.data.products.primary.articleNumber)
+            ).toBeVisible();
+        });
+    }
+
+    // Step 16: Verify Salgspris = 12 140,00
+    async verifySalgspris() {
+        await test.step('Verify Salgspris = 12 140,00', async () => {
+            await expect(
+                this.salesOrderPage.salgsrisInRow(this.data.products.primary.articleNumber)
+            ).toBeVisible();
+        });
+    }
+
+    // Step 17: Verify Sum inkl mva = 60 700,00 Kr
+    async verifySumInklMva() {
+        await test.step('Verify Sum inkl mva = 60 700,00 Kr', async () => {
+            await expect(this.salesOrderPage.sumInklMva()).toBeVisible();
         });
     }
 }

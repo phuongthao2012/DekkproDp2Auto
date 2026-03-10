@@ -117,4 +117,28 @@ export default class PurchaseOrderPage extends BasePage {
     discountGroupText(): Locator {
         return this.page.getByText(/Gruppe 3 - Forhandlere/i);
     }
+
+    // ── Step 11: After RES — customer + Res hyperlink ──────────────────────
+    customerText(): Locator {
+        return this.page.getByText('3M Autosport AS').first();
+    }
+
+    resHyperlink(): Locator {
+        // Link with text like "Res 1002795" next to the customer
+        return this.page.locator('a').filter({ hasText: /^Res\s*\d+/i }).first();
+    }
+
+    // ── Step 12: Click PO line + verify Kjøpspris ─────────────────────────
+    poLineFirstRow(): Locator {
+        return this.page.locator('table tbody tr:visible').first();
+    }
+
+    kjøpsprisCell(): Locator {
+        return this.page.locator('td').filter({ hasText: /24[\s.]280/ }).first()
+            .or(this.page.locator('td:has-text("Kjøpspris") + td')).first();
+    }
+
+    kjøpsprisValueInExpandedRow(): Locator {
+        return this.page.getByText(/24[\s\u00a0]280[,.]00/).first();
+    }
 }
