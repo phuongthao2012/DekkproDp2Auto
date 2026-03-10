@@ -1,0 +1,9 @@
+# Ignore local installed dependencies
+node_modules
+yarn.lock
+
+# Ignore test results
+test-results
+playwright-report
+allure-results
+allure-report

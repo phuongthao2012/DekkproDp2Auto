@@ -1,0 +1,10 @@
+{
+  "name": "sdetpro-k16-playwright",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@playwright/test": "1.52.0",
+    "allure-playwright": "3.2.2"
+  }
+}
