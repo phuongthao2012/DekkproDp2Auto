@@ -1,6 +1,6 @@
 import test, { expect, Page } from "@playwright/test";
 import LoginPage from "../../models/pages/dekkpro/LoginPage";
-import PurchaseOrdersPage from "../../models/pages/dekkpro/PurchaseOrdersPage";
+import PurchaseOrderListPage from "../../models/pages/dekkpro/PurchaseOrderListPage";
 import PurchaseOrderPage from "../../models/pages/dekkpro/PurchaseOrderPage";
 import SalesOrderPage from "../../models/pages/dekkpro/SalesOrderPage";
 import { fullResSalePriceData } from "../../test_data/dekkpro/PurchaseOrderData";
@@ -9,14 +9,14 @@ import { THAO_USER } from "../../test_data/dekkpro/Credentials";
 export class FullResSalePriceFlow {
 
     private loginPage: LoginPage;
-    private purchaseOrdersPage: PurchaseOrdersPage;
+    private purchaseOrdersPage: PurchaseOrderListPage;
     private purchaseOrderPage: PurchaseOrderPage;
     private salesOrderPage: SalesOrderPage;
     private data = fullResSalePriceData;
 
     constructor(private page: Page) {
         this.loginPage = new LoginPage(page);
-        this.purchaseOrdersPage = new PurchaseOrdersPage(page);
+        this.purchaseOrdersPage = new PurchaseOrderListPage(page);
         this.purchaseOrderPage = new PurchaseOrderPage(page);
         this.salesOrderPage = new SalesOrderPage(page);
     }
