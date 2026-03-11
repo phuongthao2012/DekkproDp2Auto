@@ -7,27 +7,25 @@ export default class PurchaseOrderPage extends BasePage {
         super(page);
     }
 
-    // ── Leverandør (Supplier) ──────────────────────────────────────────────
-    leverandorInput(): Locator {
-        return this.page.locator('p-autocomplete[formcontrolname="supplier"] input')
-            .or(this.page.locator('input[placeholder*="Leverandør"]'))
-            .or(this.page.locator('label:has-text("Leverandør") ~ * input'))
-            .first();
+    // ── Leverandør (Supplier) — PrimeNG p-dropdown ────────────────────────
+    leverandorDropdown(): Locator {
+        return this.page.locator('p-dropdown').filter({
+            has: this.page.locator('input[placeholder*="Leverandør"]'),
+        }).first();
     }
 
     async selectLeverandor(supplierName: string): Promise<void> {
-        const input = this.leverandorInput();
-        await input.click();
-        await input.fill(supplierName);
-        await this.page.waitForTimeout(800);
-        await this.page.locator('.p-autocomplete-item', { hasText: supplierName }).first().click();
+        // Click the p-dropdown container (the readonly input inside is not clickable)
+        await this.leverandorDropdown().click();
+        await this.page.waitForTimeout(500);
+        await this.page.locator('.p-dropdown-item', { hasText: supplierName }).first().click();
         await this.page.waitForTimeout(500);
     }
 
     // ── Product search ─────────────────────────────────────────────────────
     productSearchInput(): Locator {
         return this.page.locator('input#productFilter')
-            .or(this.page.locator('input[placeholder*="Søk produkter"]'))
+            .or(this.page.locator('input[placeholder*="Søk produkter, tjenester"]'))
             .first();
     }
 
@@ -35,21 +33,55 @@ export default class PurchaseOrderPage extends BasePage {
         return this.page.locator('table tbody tr:visible');
     }
 
+    // Rows inside the advanced-product-lookup popup (virtual scroll)
+    productLookupRows(): Locator {
+        return this.page.locator('advanced-product-lookup table tbody tr');
+    }
+
     async searchAndSelectProduct(articleNumber: string): Promise<void> {
         const input = this.productSearchInput();
         await input.waitFor({ state: 'visible', timeout: 15000 });
+        // Step 1: Open the product search area by clicking the input
+        await input.click();
+        await this.page.waitForTimeout(300);
+
+        // Step 2: Type the article number
         await input.clear();
-        await input.fill(articleNumber);
-        await this.page.keyboard.press('Enter');
+        await input.pressSequentially(articleNumber, { delay: 80 });
+
+        // Wait for loading overlay to clear after typing (results will be filtered)
+        await this.page.locator('advanced-product-lookup .p-datatable-loading-overlay')
+            .waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {});
         await this.page.waitForTimeout(1000);
-        await this.productTableRows().first().click();
+
+        // Step 3: Click "Vis Alle" (View All) to search across all suppliers
+        // Use text locator since the element may not be a native <button>
+        const visAlleBtn = this.page.locator('advanced-product-lookup').locator('text=Vis Alle')
+            .or(this.page.locator('text=Vis Alle')).first();
+        await visAlleBtn.click({ timeout: 10000 });
+
+        // Wait for loading overlay to clear after clicking Vis Alle
+        await this.page.locator('advanced-product-lookup .p-datatable-loading-overlay')
+            .waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {});
+        await this.page.waitForTimeout(1000);
+
+        // Step 4: Select the row matching the article number
+        const matchingRow = this.page.locator('advanced-product-lookup table tbody tr')
+            .filter({ hasText: articleNumber }).first();
+        await matchingRow.waitFor({ state: 'visible', timeout: 15000 });
+
+        // Force-click to bypass cdk-virtual-scroll-viewport pointer event interception
+        await matchingRow.click({ force: true });
+        await this.page.waitForTimeout(1000);
     }
 
     // ── Quantity & Save ────────────────────────────────────────────────────
     quantityInput(): Locator {
-        return this.page.locator('td:has-text("Antall") input')
-            .or(this.page.locator('input[formcontrolname="quantity"]'))
-            .or(this.page.locator('input[name*="antall"]'))
+        // After selecting a product, the inline quantity input appears in the PO lines table
+        return this.page.locator('input[formcontrolname="quantity"]')
+            .or(this.page.locator('input[formcontrolname="antal"]'))
+            .or(this.page.locator('table tbody tr:visible input[type="number"]'))
+            .or(this.page.locator('table tbody tr:visible input').first())
             .first();
     }
 
@@ -66,11 +98,13 @@ export default class PurchaseOrderPage extends BasePage {
         await this.page.waitForTimeout(1500);
     }
 
-    // ── Kunde (Customer) ───────────────────────────────────────────────────
+    // ── Kunde (Customer) — ng-select ─────────────────────────────────────
     kundeInput(): Locator {
-        return this.page.locator('p-autocomplete[formcontrolname="customer"] input')
-            .or(this.page.locator('input[placeholder*="Kunde"]'))
-            .or(this.page.locator('label:has-text("Kunde") ~ * input'))
+        // Kunde is rendered as ng-select: placeholder lives in .ng-placeholder span,
+        // not as an HTML placeholder attribute. The typeable input is .ng-input > input.
+        return this.page.locator('ng-select')
+            .filter({ has: this.page.locator('.ng-placeholder', { hasText: /^Kunde$/i }) })
+            .locator('.ng-input input')
             .first();
     }
 
@@ -78,9 +112,17 @@ export default class PurchaseOrderPage extends BasePage {
         const input = this.kundeInput();
         await input.waitFor({ state: 'visible', timeout: 15000 });
         await input.click();
-        await input.fill(customerName);
-        await this.page.waitForTimeout(800);
-        await this.page.locator('.p-autocomplete-item', { hasText: customerName }).first().click();
+        await this.page.waitForTimeout(300);
+        await input.clear();
+        // Type character by character to trigger ng-select change detection
+        await input.pressSequentially(customerName, { delay: 100 });
+        await this.page.waitForTimeout(2000);
+        // ng-select renders dropdown items as .ng-option rows
+        const item = this.page.locator(
+            'ng-select .ng-option, .ng-dropdown-panel .ng-option, li[role="option"]'
+        ).filter({ hasText: customerName }).first();
+        await item.waitFor({ state: 'visible', timeout: 8000 });
+        await item.click();
         await this.page.waitForTimeout(500);
     }
 

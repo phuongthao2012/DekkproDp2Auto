@@ -34,7 +34,7 @@ export default class NewOrderPage extends BasePage {
 
     async navigate(): Promise<void> {
         await this.page.goto('/app/sales/new-order');
-        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => {});
         await this.page.waitForTimeout(2000);
     }
 
