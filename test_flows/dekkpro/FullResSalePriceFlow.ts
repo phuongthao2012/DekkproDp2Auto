@@ -4,11 +4,7 @@ import PurchaseOrdersPage from "../../models/pages/dekkpro/PurchaseOrdersPage";
 import PurchaseOrderPage from "../../models/pages/dekkpro/PurchaseOrderPage";
 import SalesOrderPage from "../../models/pages/dekkpro/SalesOrderPage";
 import { fullResSalePriceData } from "../../test_data/dekkpro/PurchaseOrderData";
-
-const CREDENTIALS = {
-    email: 'thao@dekkpro.no',
-    password: 'Th@0Th@0',
-};
+import { THAO_USER } from "../../test_data/dekkpro/Credentials";
 
 export class FullResSalePriceFlow {
 
@@ -25,23 +21,34 @@ export class FullResSalePriceFlow {
         this.salesOrderPage = new SalesOrderPage(page);
     }
 
-    // Step 1: Log out
+    // Step 1: Log out — clear all auth state then navigate to force re-login
     async logout() {
         await test.step('Log out current session', async () => {
-            // Clear cookies and storage to force Auth0 re-authentication
-            await this.page.context().clearCookies();
+            // Navigate to app so we're on the right domain to access localStorage
+            await this.page.goto('https://demo.dekkpro.no/app/dashboard');
+            await this.page.waitForLoadState('networkidle').catch(() => {});
+
+            // Clear all auth storage (localStorage contains Auth0 tokens for SPAs)
             await this.page.evaluate(() => localStorage.clear());
             await this.page.evaluate(() => sessionStorage.clear());
+            await this.page.context().clearCookies();
+
+            // Navigate to root — app will detect no auth and redirect to Auth0 login
+            await this.page.goto('https://demo.dekkpro.no');
+            await this.page.waitForURL(/auth0|login/i, { timeout: 30000 });
         });
     }
 
     // Step 2: Login with thao@dekkpro.no
     async loginAsThao() {
-        await test.step(`Login as ${CREDENTIALS.email}`, async () => {
-            await this.loginPage.navigate();
+        await test.step(`Login as ${THAO_USER.email}`, async () => {
             await this.page.locator('#username').waitFor({ state: 'visible', timeout: 60000 });
-            await this.loginPage.login(CREDENTIALS.email, CREDENTIALS.password);
-            await this.page.waitForLoadState('networkidle');
+            await this.page.locator('#username').fill(THAO_USER.email);
+            await this.page.locator('#password').fill(THAO_USER.password);
+            await this.page.locator('button[type="submit"]').click();
+            // Use longer timeout — thao account may take time to load app after Auth0
+            await this.page.waitForURL('**/app/**', { timeout: 90000 });
+            await this.page.waitForLoadState('networkidle').catch(() => {});
         });
     }
 

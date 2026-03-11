@@ -9,9 +9,10 @@ export default class SalesOrderPage extends BasePage {
 
     // ── Step 14: Verify Rabatt 50% ─────────────────────────────────────────
     rabattCell(): Locator {
-        // Discount cell in the order line table — 50%
-        return this.page.locator('table tbody tr:visible td').filter({ hasText: /50[,.]?0?\s*%/ }).first()
-            .or(this.page.locator('td').filter({ hasText: /^50/ }).first());
+        // Discount cell in the order line table — "50,00 %" (two decimals)
+        return this.page.locator('table tbody tr td')
+            .filter({ hasText: /50[,.]?\d*\s*%/ })
+            .first();
     }
 
     // ── Step 15: Verify product ALL60010005 is added ───────────────────────
@@ -29,9 +30,8 @@ export default class SalesOrderPage extends BasePage {
 
     // ── Step 17: Verify Sum inkl mva 60 700,00 Kr ─────────────────────────
     sumInklMva(): Locator {
-        // Price summary area — look for total incl VAT value
-        return this.page.getByText(/60[\s\u00a0]700[,.]00/).first()
-            .or(this.page.locator('*').filter({ hasText: /60[\s\u00a0]700/ }).last());
+        // Use first() to avoid strict-mode violation when multiple elements contain the value
+        return this.page.getByText(/60[\s\u00a0]700[,.]00/).first();
     }
 
     sumInklMvaRow(): Locator {

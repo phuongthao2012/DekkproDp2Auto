@@ -1,11 +1,5 @@
 import { test as setup } from '@playwright/test';
-
-const STORAGE_STATE_PATH = 'fixtures/.auth/dekkpro-storageState.json';
-
-const CREDENTIALS = {
-    email: 'phuongthao2012@gmail.com',
-    password: 'Dekkpro1!',
-};
+import { SETUP_USER } from '../test_data/dekkpro/Credentials';
 
 setup('Dekkpro Auth0 Login', async ({ page }) => {
     setup.setTimeout(180000);
@@ -17,12 +11,12 @@ setup('Dekkpro Auth0 Login', async ({ page }) => {
     // Wait for Auth0 login form to appear
     await page.locator('#username').waitFor({ state: 'visible', timeout: 120000 });
 
-    await page.locator('#username').fill(CREDENTIALS.email);
-    await page.locator('#password').fill(CREDENTIALS.password);
+    await page.locator('#username').fill(SETUP_USER.email);
+    await page.locator('#password').fill(SETUP_USER.password);
     await page.locator('button[type="submit"]').click();
     await page.waitForURL('**/app/**', { timeout: 120000 });
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => {});
 
     // Save storage state (cookies, localStorage) for reuse in tests
-    await page.context().storageState({ path: STORAGE_STATE_PATH });
+    await page.context().storageState({ path: SETUP_USER.storageStatePath });
 });
