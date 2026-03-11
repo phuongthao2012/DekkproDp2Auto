@@ -55,4 +55,35 @@ export default class CustomerSectionComponent {
     customerAddressDropdown(): Locator {
         return this.component.locator(this.customerAddressDropdownSel);
     }
+
+    // ── WPR-0049: Alternative delivery address ────────────────────────────
+    async expandCustomerCard(): Promise<void> {
+        // Click the chevron/toggle to reveal delivery address options
+        const toggler = this.component
+            .locator('button[icon="pi pi-chevron-down"], .p-panel-toggler, [class*="toggle"], button.expand')
+            .first();
+        await toggler.click();
+        await this.component.page().waitForTimeout(500);
+    }
+
+    async searchAlternativeDeliveryCustomer(customerName: string): Promise<void> {
+        // The alternative delivery lookup is a second ng-select (not the main customer picker)
+        const altSelect = this.component
+            .locator('ng-select')
+            .filter({ hasNot: this.component.locator('ng-select#selectedCustomer\\.id') })
+            .first();
+        const altInput = altSelect.locator('input[type="text"]');
+        await altInput.click();
+        await altInput.fill(customerName);
+        const firstOption = this.component.page().locator('.ng-option').first();
+        await firstOption.waitFor({ state: 'visible', timeout: 15000 });
+        await firstOption.click();
+    }
+
+    alternativeDeliverySelect(): Locator {
+        return this.component
+            .locator('ng-select')
+            .filter({ hasNot: this.component.locator('ng-select#selectedCustomer\\.id') })
+            .first();
+    }
 }
