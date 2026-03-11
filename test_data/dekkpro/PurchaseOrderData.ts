@@ -1,3 +1,19 @@
+export const alternativeAddressData = {
+    customer: {
+        primary: 'Bileko Car Parts Norway AS',
+        customerNumber: '240612',
+        alternativeDelivery: 'K 2000 Bilpleie Bergen avd Dekk & Felg',
+    },
+    expectedAddress: {
+        street: 'Conrad Mohrsvei 25',
+        postalCity: '5072 Bergen',
+        mobile: '55206110',
+    },
+    product: {
+        searchTerm: 'GoodYear',
+    },
+};
+
 export const fullResSalePriceData = {
     customer: {
         name: '3M Autosport AS',

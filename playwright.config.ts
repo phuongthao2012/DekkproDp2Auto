@@ -30,11 +30,11 @@ export default defineConfig({
             use      : { ...devices['Desktop Chrome'] },
         },
 
-        // ── Main suite — all specs EXCEPT FullResSalePrice ────────────────
+        // ── Main suite — all specs EXCEPT isolated login tests ───────────
         {
             name        : 'Dekkpro',
             testDir     : './tests/dekkpro',
-            testIgnore  : ['**/FullResSalePrice.spec.ts'],
+            testIgnore  : ['**/FullResSalePrice.spec.ts', '**/AlternativeAddress.spec.ts'],
             timeout     : 300 * 1000,
             use         : { ...sharedUse },
             dependencies: ['dekkpro-setup'],
@@ -45,6 +45,16 @@ export default defineConfig({
             name        : 'FullResSalePrice',
             testDir     : './tests/dekkpro',
             testMatch   : /FullResSalePrice\.spec\.ts/,
+            timeout     : 300 * 1000,
+            use         : { ...sharedUse },
+            dependencies: ['dekkpro-setup'],
+        },
+
+        // ── Isolated project — AlternativeAddress on its own worker ───────
+        {
+            name        : 'AlternativeAddress',
+            testDir     : './tests/dekkpro',
+            testMatch   : /AlternativeAddress\.spec\.ts/,
             timeout     : 300 * 1000,
             use         : { ...sharedUse },
             dependencies: ['dekkpro-setup'],

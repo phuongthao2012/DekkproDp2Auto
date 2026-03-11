@@ -34,6 +34,11 @@ export default class SalesOrderPage extends BasePage {
         return this.page.getByText(/60[\s\u00a0]700[,.]00/).first();
     }
 
+    // ── WPR-0049: Delivery address verification ───────────────────────────
+    deliveryAddressContaining(text: string): Locator {
+        return this.page.locator('*').filter({ hasText: text }).last();
+    }
+
     sumInklMvaRow(): Locator {
         return this.page.locator('tr, div')
             .filter({ hasText: /inkl.*mva/i })
