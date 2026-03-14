@@ -1,25 +1,20 @@
-// DP2-23193: Purchase Order List search by customer phone number
-// Verify the phone number below matches the customer record in demo.dekkpro.no
-export const poSearchByPhoneData = {
+// DP2-23193: Purchase Order List search by customer vendor name
+export const poSearchByVendorNameData = {
     customer: {
         name: '3M Autosport AS',
-        phone: '23456789',
     },
 };
 
-export const alternativeAddressData = {
+// DP2-23193: Purchase Order List search by customer mobile phone / telephone
+export const poSearchByPhoneData = {
     customer: {
-        primary: 'Bileko Car Parts Norway AS',
-        customerNumber: '240612',
-        alternativeDelivery: 'K 2000 Bilpleie Bergen avd Dekk & Felg',
+        name: '3M Autosport AS',
     },
-    expectedAddress: {
-        street: 'Conrad Mohrsvei 25',
-        postalCity: '5072 Bergen',
-        mobile: '55206110',
-    },
-    product: {
-        searchTerm: 'GoodYear',
+    poNumber: '99900',
+    searchTerms: {
+        fullMobile: '4784948',
+        partialMobile: '84948',
+        phone: '880404',
     },
 };
 

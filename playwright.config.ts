@@ -18,8 +18,7 @@ const sharedUse = {
 
 export default defineConfig({
     testDir     : './tests',
-    fullyParallel: true,
-    workers     : 2,   // worker 1 → Dekkpro project, worker 2 → FullResSalePrice project
+    fullyParallel: false,
     projects: [
 
         // ── Setup (runs once before any test project) ─────────────────────
@@ -29,32 +28,31 @@ export default defineConfig({
             testMatch: /dekkpro\.setup\.ts/,
             use      : { ...devices['Desktop Chrome'] },
         },
+                // ── ALL cases ─────────────────────────
+        {
+            name        : 'ALL',
+            testDir     : './tests/dekkpro',
+            testMatch   : /.*\.spec\.ts/,
+            timeout     : 300 * 1000,
+            use         : { ...sharedUse },
+            dependencies: ['dekkpro-setup'],
+        },
 
-        // ── Main suite — all specs EXCEPT isolated login tests ───────────
+        // // ── PurchaseOrders: WPR-0048 + DP2-23193 ─────────────────────────
+        // {
+        //     name        : 'PurchaseOrders',
+        //     testDir     : './tests/dekkpro',
+        //     testMatch   : /FullResSalePrice\.spec\.ts|PoSearchByVendorName\.spec\.ts/,
+        //     timeout     : 300 * 1000,
+        //     use         : { ...sharedUse },
+        //     dependencies: ['dekkpro-setup'],
+        // },
+
+        // ── Dekkpro: Invoice History + New Order (Reservation Flow) ───────
         {
             name        : 'Dekkpro',
             testDir     : './tests/dekkpro',
-            testIgnore  : ['**/FullResSalePrice.spec.ts', '**/AlternativeAddress.spec.ts'],
-            timeout     : 300 * 1000,
-            use         : { ...sharedUse },
-            dependencies: ['dekkpro-setup'],
-        },
-
-        // ── Isolated project — FullResSalePrice on its own worker ─────────
-        {
-            name        : 'FullResSalePrice',
-            testDir     : './tests/dekkpro',
-            testMatch   : /FullResSalePrice\.spec\.ts/,
-            timeout     : 300 * 1000,
-            use         : { ...sharedUse },
-            dependencies: ['dekkpro-setup'],
-        },
-
-        // ── Isolated project — AlternativeAddress on its own worker ───────
-        {
-            name        : 'AlternativeAddress',
-            testDir     : './tests/dekkpro',
-            testMatch   : /AlternativeAddress\.spec\.ts/,
+            testIgnore  : ['**/FullResSalePrice.spec.ts', '**/PoSearchByVendorName.spec.ts'],
             timeout     : 300 * 1000,
             use         : { ...sharedUse },
             dependencies: ['dekkpro-setup'],

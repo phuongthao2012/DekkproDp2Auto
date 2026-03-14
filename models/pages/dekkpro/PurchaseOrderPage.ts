@@ -7,18 +7,24 @@ export default class PurchaseOrderPage extends BasePage {
         super(page);
     }
 
-    // ── Leverandør (Supplier) — PrimeNG p-dropdown ────────────────────────
-    leverandorDropdown(): Locator {
-        return this.page.locator('p-dropdown').filter({
-            has: this.page.locator('input[placeholder*="Leverandør"]'),
-        }).first();
+    // ── Leverandør (Supplier) — PrimeNG p-dropdown/p-select ────────────────
+    leverandorCombobox(): Locator {
+        return this.page.getByRole('combobox', { name: 'Leverandør' });
     }
 
     async selectLeverandor(supplierName: string): Promise<void> {
-        // Click the p-dropdown container (the readonly input inside is not clickable)
-        await this.leverandorDropdown().click();
+        // Click the combobox to open the dropdown panel
+        const combobox = this.leverandorCombobox();
+        await combobox.click();
         await this.page.waitForTimeout(500);
-        await this.page.locator('.p-dropdown-item', { hasText: supplierName }).first().click();
+        // Type via keyboard to filter (combobox is not a native input)
+        await this.page.keyboard.type(supplierName, { delay: 80 });
+        await this.page.waitForTimeout(1000);
+        // Click the matching option
+        const option = this.page.getByRole('option', { name: supplierName })
+            .or(this.page.locator('.p-dropdown-item, .p-select-option').filter({ hasText: supplierName }).first());
+        await option.first().waitFor({ state: 'visible', timeout: 10000 });
+        await option.first().click();
         await this.page.waitForTimeout(500);
     }
 

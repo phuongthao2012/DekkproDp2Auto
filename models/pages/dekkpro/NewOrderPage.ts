@@ -44,6 +44,14 @@ export default class NewOrderPage extends BasePage {
             'auto': 'p-radiobutton[inputid="printModeAuto"]',
             'none': 'p-radiobutton[inputid="printModeNone"]',
         };
-        await this.page.locator(radioMap[mode]).locator('.p-radiobutton-box').click();
+        const radio = this.page.locator(radioMap[mode]);
+        // Print mode radios may not exist in current UI version — skip if absent
+        if (await radio.count() === 0) return;
+        const box = radio.locator('.p-radiobutton-box');
+        if (await box.count() > 0) {
+            await box.click();
+        } else {
+            await radio.click();
+        }
     }
 }

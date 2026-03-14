@@ -9,8 +9,8 @@ export default class InvoiceHistoryPage extends BasePage {
 
     async navigate(): Promise<void> {
         await this.page.goto('/app/invoice/invoice-history');
-        await this.page.waitForLoadState('networkidle');
-        await this.page.waitForTimeout(1500);
+        await this.page.waitForLoadState('networkidle').catch(() => {});
+        await this.page.waitForTimeout(2000);
     }
 
     tab(name: string): Locator {
@@ -22,7 +22,7 @@ export default class InvoiceHistoryPage extends BasePage {
     }
 
     rowCheckbox(row: Locator): Locator {
-        return row.locator('td:first-child .p-checkbox .p-checkbox-box');
+        return row.locator('td:first-child .p-checkbox');
     }
 
     headerCheckAll(): Locator {

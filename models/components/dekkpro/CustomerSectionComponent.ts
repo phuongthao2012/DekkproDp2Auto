@@ -18,10 +18,10 @@ export default class CustomerSectionComponent {
         const ngSelectInput = ngSelect.locator('input[type="text"]');
         await ngSelectInput.click();
         await ngSelectInput.fill(customerName);
-        // Wait for dropdown options to appear before clicking
-        const firstOption = this.component.page().locator('.ng-option').first();
-        await firstOption.waitFor({ state: 'visible', timeout: 15000 });
-        await firstOption.click();
+        // Wait for dropdown options to appear, then click the one matching the name
+        const matchingOption = this.component.page().locator('.ng-option').filter({ hasText: customerName }).first();
+        await matchingOption.waitFor({ state: 'visible', timeout: 15000 });
+        await matchingOption.click();
     }
 
     async selectContact(contactName: string): Promise<void> {

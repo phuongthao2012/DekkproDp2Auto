@@ -30,14 +30,19 @@ export default class ProductSectionComponent {
     }
 
     async selectSeasonFilter(season: 'Alle' | 'Sommer' | 'M+S' | 'M+S Pigg'): Promise<void> {
-        const seasonContainer = this.component.locator(this.seasonContainerSel);
+        const page = this.component.page();
         const buttonMap: Record<string, Locator> = {
-            'Alle': seasonContainer.locator('div.p-button', { hasText: 'Alle' }).first(),
-            'Sommer': seasonContainer.locator('div.p-button', { hasText: 'Sommer' }),
-            'M+S': seasonContainer.locator('div.p-button', { hasText: /^M\+S$/ }),
-            'M+S Pigg': seasonContainer.locator('div.p-button', { hasText: 'M+S Pigg' }),
+            'Alle': page.getByRole('button', { name: 'Alle', exact: true }),
+            'Sommer': page.getByRole('button', { name: 'Sommer', exact: true }),
+            'M+S': page.getByRole('button', { name: 'M+S', exact: true }),
+            'M+S Pigg': page.getByRole('button', { name: 'M+S Pigg', exact: true }),
         };
-        await buttonMap[season].click();
+        const btn = buttonMap[season];
+        // Skip if already selected (pressed)
+        const isPressed = await btn.getAttribute('aria-pressed').catch(() => null)
+            ?? await btn.getAttribute('data-p-active').catch(() => null);
+        if (isPressed === 'true') return;
+        await btn.click();
     }
 
     async selectCategoryFilter(category: 'Diverse' | 'Arbeid'): Promise<void> {

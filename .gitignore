@@ -7,3 +7,16 @@ test-results
 playwright-report
 allure-results
 allure-report
+
+# Claude Code
+.claude/
+
+# IDE
+.vscode/
+
+# Auth state
+fixtures/.auth/
+
+# Temp
+dp2-automation-fw/
+playwright.config.ts-worker

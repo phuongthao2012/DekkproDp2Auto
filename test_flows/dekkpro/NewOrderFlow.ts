@@ -55,6 +55,13 @@ export class NewOrderFlow {
                 await productSection.selectProductSourceTab(sourceTab);
             }
 
+            // Dismiss any SweetAlert dialog that may have appeared
+            const swalOk = this.page.locator('.swal2-confirm');
+            if (await swalOk.isVisible().catch(() => false)) {
+                await swalOk.click();
+                await this.page.waitForTimeout(500);
+            }
+
             await productSection.searchProduct(searchTerm);
             await expect(productSection.productSearchInput()).toHaveValue(searchTerm);
 

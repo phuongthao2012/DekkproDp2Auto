@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "skipLibCheck": true
+  },
+  "include": [
+    "tests/**/*.ts",
+    "test_flows/**/*.ts",
+    "test_data/**/*.ts",
+    "models/**/*.ts",
+    "fixtures/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

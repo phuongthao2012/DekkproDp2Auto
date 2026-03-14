@@ -11,7 +11,7 @@ export default class SalesOrderPage extends BasePage {
     rabattCell(): Locator {
         // Discount cell in the order line table — "50,00 %" (two decimals)
         return this.page.locator('table tbody tr td')
-            .filter({ hasText: /50[,.]?\d*\s*%/ })
+            .filter({ hasText: /50[,.]?\d*[\s\u00a0]*%/ })
             .first();
     }
 

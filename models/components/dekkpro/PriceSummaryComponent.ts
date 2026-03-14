@@ -9,8 +9,8 @@ export default class PriceSummaryComponent {
     private totalDiscountBeforeTaxSel = 'input#totalDiscountBeforeTax';
     private totalDiscountAfterTaxSel = 'input#totalDiscountAfterTax';
     private creditAmountSel = 'input#creditAmount';
-    private totalBeforeTaxSel = 'input#totalBeforeTax';
-    private totalAfterTaxSel = 'input#totalAfterTax';
+    private totalBeforeTaxLabel = 'Sum ekskl mva:';
+    private totalAfterTaxLabel = 'Sum inkl mva:';
     private profitSel = 'input#profit';
     private profitPercentSel = 'input#profitPercent';
 
@@ -39,11 +39,11 @@ export default class PriceSummaryComponent {
     }
 
     async getTotalBeforeTax(): Promise<string> {
-        return await this.component.locator(this.totalBeforeTaxSel).inputValue();
+        return await this.totalBeforeTax().textContent() ?? '';
     }
 
     async getTotalAfterTax(): Promise<string> {
-        return await this.component.locator(this.totalAfterTaxSel).inputValue();
+        return await this.totalAfterTax().textContent() ?? '';
     }
 
     async getProfit(): Promise<string> {
@@ -59,11 +59,11 @@ export default class PriceSummaryComponent {
     }
 
     totalBeforeTax(): Locator {
-        return this.component.locator(this.totalBeforeTaxSel);
+        return this.component.page().getByText(/Sum ekskl mva:/).first();
     }
 
     totalAfterTax(): Locator {
-        return this.component.locator(this.totalAfterTaxSel);
+        return this.component.page().getByText(/Sum inkl mva:/).first();
     }
 
     profit(): Locator {

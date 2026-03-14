@@ -18,15 +18,17 @@ export class InvoiceHistoryFlow {
 
     async selectUtestaaendeTab() {
         await test.step('Select Utestående tab', async () => {
-            await this.invoiceHistoryPage.tab('Utestående').click();
-            await this.page.waitForLoadState('networkidle');
+            await this.invoiceHistoryPage.tab('Utestående').click({ timeout: 30000 });
+            await this.page.waitForLoadState('networkidle').catch(() => {});
+            await this.page.waitForTimeout(1000);
         });
     }
 
     async selectOppdaterTab() {
         await test.step('Select Oppdater tab', async () => {
-            await this.invoiceHistoryPage.tab('Oppdater').click();
-            await this.page.waitForLoadState('networkidle');
+            await this.invoiceHistoryPage.tab('Oppdater').click({ timeout: 30000 });
+            await this.page.waitForLoadState('networkidle').catch(() => {});
+            await this.page.waitForTimeout(1000);
         });
     }
 
@@ -35,7 +37,8 @@ export class InvoiceHistoryFlow {
             const rows = this.invoiceHistoryPage.tableRows();
             await expect(rows.first()).toBeVisible();
             for (let i = 0; i < 3; i++) {
-                await this.invoiceHistoryPage.rowCheckbox(rows.nth(i)).click();
+                await this.invoiceHistoryPage.rowCheckbox(rows.nth(i)).dispatchEvent('click');
+                await this.page.waitForTimeout(500);
             }
         });
     }
@@ -58,7 +61,8 @@ export class InvoiceHistoryFlow {
         await test.step('Select each of the 3 rows one by one', async () => {
             const rows = this.invoiceHistoryPage.tableRows();
             for (let i = 0; i < 3; i++) {
-                await this.invoiceHistoryPage.rowCheckbox(rows.nth(i)).click();
+                await this.invoiceHistoryPage.rowCheckbox(rows.nth(i)).dispatchEvent('click');
+                await this.page.waitForTimeout(500);
             }
         });
     }

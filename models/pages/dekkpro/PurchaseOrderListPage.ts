@@ -25,16 +25,30 @@ export default class PurchaseOrderListPage extends BasePage {
     // ── Search (DP2-23193) ──────────────────────────────────────────────────
 
     searchInput(): Locator {
-        return this.page.locator('input[placeholder*="Søk"]').first();
+        return this.page.getByPlaceholder('Vennligst oppgi minst 3 tegn').last();
     }
 
     async searchFor(text: string): Promise<void> {
         const input = this.searchInput();
-        await input.waitFor({ state: 'visible', timeout: 15000 });
-        await input.click();
-        await input.clear();
-        await input.fill(text);
-        await this.page.waitForTimeout(1000);
+        await input.click({ force: true, timeout: 15000 });
+        await input.clear({ force: true });
+        await input.pressSequentially(text, { delay: 80 });
+        await this.page.keyboard.press('Enter');
+        await this.page.waitForTimeout(2000);
+    }
+
+    async clearSearch(): Promise<void> {
+        const input = this.searchInput();
+        await input.click({ force: true, timeout: 15000 });
+        await input.clear({ force: true });
+        await this.page.keyboard.press('Enter');
+        await this.page.waitForTimeout(2000);
+    }
+
+    rowContainingPOLink(poNumber: string): Locator {
+        return this.page.locator('p-table tbody tr').filter({
+            has: this.page.locator('a', { hasText: poNumber }),
+        }).first();
     }
 
     tableRows(): Locator {

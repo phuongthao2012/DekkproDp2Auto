@@ -15,7 +15,7 @@ test("WPR-0048 - Check full res sale price", async ({ page }) => {
     // Step 1: Log out
     await flow.logout();
 
-    // Step 2: Login as thao@dekkpro.no / Th@0Th@0
+    // Step 2: Login as thao@dekkpro.no
     await flow.loginAsThao();
 
     // Step 3: Navigate to purchase orders
